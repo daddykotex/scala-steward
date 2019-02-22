@@ -14,16 +14,9 @@
  * limitations under the License.
  */
 
-package org.scalasteward.core.github.data
+package org.scalasteward.core.gitweb.data
 
-import io.circe.Decoder
-import io.circe.generic.semiauto._
-
-final case class UserOut(
-    login: String
+final case class AuthenticatedUser(
+    login: String,
+    accessToken: String
 )
-
-object UserOut {
-  implicit val userOutDecoder: Decoder[UserOut] =
-    deriveDecoder
-}

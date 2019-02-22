@@ -22,8 +22,8 @@ import cats.{FlatMap, Monad}
 import io.chrisdavenport.log4cats.Logger
 import org.scalasteward.core.application.Config
 import org.scalasteward.core.git.{Branch, GitAlg}
-import org.scalasteward.core.github.GitHubApiAlg
-import org.scalasteward.core.github.data.{NewPullRequestData, Repo}
+import org.scalasteward.core.gitweb.GitWebApiAlg
+import org.scalasteward.core.gitweb.data.{NewPullRequestData, Repo}
 import org.scalasteward.core.model.Update
 import org.scalasteward.core.sbt.SbtAlg
 import org.scalasteward.core.update.FilterAlg
@@ -37,7 +37,7 @@ class NurtureAlg[F[_]](
     editAlg: EditAlg[F],
     filterAlg: FilterAlg[F],
     gitAlg: GitAlg[F],
-    gitHubApiAlg: GitHubApiAlg[F],
+    gitHubApiAlg: GitWebApiAlg[F],
     logger: Logger[F],
     pullRequestRepo: PullRequestRepository[F],
     sbtAlg: SbtAlg[F]
@@ -57,7 +57,7 @@ class NurtureAlg[F[_]](
     for {
       _ <- logger.info(s"Clone and synchronize ${repo.show}")
       repoOut <- gitHubApiAlg.createForkOrGetRepo(config, repo)
-      cloneUrl = util.uri.withUserInfo(repoOut.clone_url, config.gitHubLogin)
+      cloneUrl = util.uri.withUserInfo(repoOut.clone_url, config.gitwebConfig.login)
       _ <- gitAlg.clone(repo, cloneUrl)
       _ <- gitAlg.setAuthor(repo, config.gitAuthor)
       parent <- gitAlg.checkAndSyncFork(repo, repoOut)

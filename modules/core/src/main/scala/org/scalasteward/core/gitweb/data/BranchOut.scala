@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package org.scalasteward.core.github.data
+package org.scalasteward.core.gitweb.data
 
 import io.circe.Decoder
 import io.circe.generic.semiauto._
-import org.scalasteward.core.git.Sha1
+import org.scalasteward.core.git.Branch
 
-final case class CommitOut(
-    sha: Sha1
+final case class BranchOut(
+    name: Branch,
+    commit: CommitOut
 )
 
-object CommitOut {
-  implicit val commitOutDecoder: Decoder[CommitOut] =
+object BranchOut {
+  implicit val branchOutDecoder: Decoder[BranchOut] =
     deriveDecoder
 }

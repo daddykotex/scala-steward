@@ -20,7 +20,7 @@ import cats.implicits._
 import org.http4s.Uri
 import org.scalasteward.core.git.Branch
 import org.scalasteward.core.github.Url
-import org.scalasteward.core.github.data.Repo
+import org.scalasteward.core.gitweb.data.Repo
 import org.scalasteward.core.util.ApplicativeThrowable
 import org.scalasteward.core.util.uri._
 

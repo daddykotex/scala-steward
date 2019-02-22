@@ -26,8 +26,8 @@ import org.http4s.headers.Authorization
 import org.http4s.{BasicCredentials, Headers, Request, Uri}
 import org.scalasteward.core.application.Config
 import org.scalasteward.core.git.Branch
-import org.scalasteward.core.github._
-import org.scalasteward.core.github.data._
+import org.scalasteward.core.gitweb._
+import org.scalasteward.core.gitweb.data._
 import org.scalasteward.core.github.http4s.Http4sGitHubApiAlg._
 
 class Http4sGitHubApiAlg[F[_]](
@@ -36,8 +36,8 @@ class Http4sGitHubApiAlg[F[_]](
     config: Config,
     user: AuthenticatedUser,
     F: Sync[F]
-) extends GitHubApiAlg[F] {
-  val http4sUrl = new Http4sUrl(config.gitHubApiHost)
+) extends GitWebApiAlg[F] {
+  val http4sUrl = new Http4sUrl(config.gitwebConfig.host)
 
   override def createFork(repo: Repo): F[RepoOut] =
     http4sUrl.forks[F](repo).flatMap { uri =>

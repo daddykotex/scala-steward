@@ -22,7 +22,7 @@ import cats.effect.Bracket
 import cats.implicits._
 import org.http4s.Uri
 import org.scalasteward.core.application.Config
-import org.scalasteward.core.github.data.{Repo, RepoOut}
+import org.scalasteward.core.gitweb.data.{Repo, RepoOut}
 import org.scalasteward.core.io.{FileAlg, ProcessAlg, WorkspaceAlg}
 import org.scalasteward.core.util
 import org.scalasteward.core.util.{MonadThrowable, Nel}
@@ -187,7 +187,7 @@ object GitAlg {
         else {
           for {
             parent <- repoOut.parentOrRaise[F]
-            parentCloneUrl = util.uri.withUserInfo(parent.clone_url, config.gitHubLogin)
+            parentCloneUrl = util.uri.withUserInfo(parent.clone_url, config.gitwebConfig.login)
             _ <- syncFork(repo, parentCloneUrl, parent.default_branch)
           } yield parent
         }

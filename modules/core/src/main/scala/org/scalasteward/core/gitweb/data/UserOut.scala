@@ -14,27 +14,16 @@
  * limitations under the License.
  */
 
-package org.scalasteward.core.github.data
+package org.scalasteward.core.gitweb.data
 
-import cats.implicits._
 import io.circe.Decoder
 import io.circe.generic.semiauto._
-import org.http4s.Uri
-import org.scalasteward.core.util.uri.uriDecoder
 
-final case class PullRequestOut(
-    html_url: Uri,
-    state: String,
-    title: String
-) {
-  def isClosed: Boolean =
-    state === "closed"
-}
+final case class UserOut(
+    login: String
+)
 
-object PullRequestOut {
-  implicit val pullRequestOutDecoder: Decoder[PullRequestOut] =
+object UserOut {
+  implicit val userOutDecoder: Decoder[UserOut] =
     deriveDecoder
-
-  // prevent IntelliJ from removing the import of uriDecoder
-  locally(uriDecoder)
 }

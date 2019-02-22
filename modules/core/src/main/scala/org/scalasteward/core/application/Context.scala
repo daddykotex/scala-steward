@@ -24,8 +24,8 @@ import org.http4s.client.blaze.BlazeClientBuilder
 import org.scalasteward.core.dependency.json.JsonDependencyRepository
 import org.scalasteward.core.dependency.{DependencyRepository, DependencyService}
 import org.scalasteward.core.git.GitAlg
-import org.scalasteward.core.github.GitHubApiAlg
-import org.scalasteward.core.github.data.AuthenticatedUser
+import org.scalasteward.core.gitweb.GitWebApiAlg
+import org.scalasteward.core.gitweb.data.AuthenticatedUser
 import org.scalasteward.core.github.http4s.Http4sGitHubApiAlg
 import org.scalasteward.core.io.{FileAlg, ProcessAlg, WorkspaceAlg}
 import org.scalasteward.core.nurture.json.JsonPullRequestRepo
@@ -53,7 +53,7 @@ object Context {
       config_ <- Resource.liftF(Config.create[F](cliArgs_))
       client_ <- BlazeClientBuilder[F](ExecutionContext.global).resource
       logger_ <- Resource.liftF(Slf4jLogger.create[F])
-      user_ <- Resource.liftF(config_.gitHubUser[F])
+      user_ <- Resource.liftF(config_.gitwebUser[F])
     } yield {
       implicit val client: Client[F] = client_
       implicit val config: Config = config_
@@ -67,7 +67,7 @@ object Context {
       implicit val dependencyRepository: DependencyRepository[F] = new JsonDependencyRepository[F]
       implicit val editAlg: EditAlg[F] = EditAlg.create[F]
       implicit val gitAlg: GitAlg[F] = GitAlg.create[F]
-      implicit val gitHubApiAlg: GitHubApiAlg[F] = new Http4sGitHubApiAlg[F]
+      implicit val gitHubApiAlg: GitWebApiAlg[F] = new Http4sGitHubApiAlg[F]
       implicit val pullRequestRepo: PullRequestRepository[F] = new JsonPullRequestRepo[F]
       implicit val sbtAlg: SbtAlg[F] = SbtAlg.create[F]
       implicit val updateRepository: UpdateRepository[F] = new JsonUpdateRepository[F]

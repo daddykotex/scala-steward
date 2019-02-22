@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package org.scalasteward.core.github
+package org.scalasteward.core.gitweb
 
 import cats.Monad
 import cats.implicits._
 import org.scalasteward.core.application.Config
 import org.scalasteward.core.git.Branch
-import org.scalasteward.core.github.data._
+import org.scalasteward.core.gitweb.data._
 import org.scalasteward.core.util.MonadThrowable
 
-trait GitHubApiAlg[F[_]] {
+trait GitWebApiAlg[F[_]] {
 
   /** https://developer.github.com/v3/repos/forks/#create-a-fork */
   def createFork(repo: Repo): F[RepoOut]

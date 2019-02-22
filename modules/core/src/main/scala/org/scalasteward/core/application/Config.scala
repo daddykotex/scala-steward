@@ -20,13 +20,13 @@ import better.files._
 import cats.effect.Sync
 import cats.implicits._
 import org.scalasteward.core.git.Author
-import org.scalasteward.core.github.data.AuthenticatedUser
+import org.scalasteward.core.gitweb.data.AuthenticatedUser
 import org.scalasteward.core.util
 import scala.sys.process.Process
 
 /** Configuration for scala-steward.
   *
-  * == [[gitHubApiHost]] ==
+  * == [[gitHubApiHost]] == //TODO
   * REST API v3 endpoints prefix
   *
   * For github.com this is "https://api.github.com", see
@@ -37,18 +37,24 @@ import scala.sys.process.Process
   *
   * == [[gitAskPass]] ==
   * Program that is invoked by scala-steward and git (via the `GIT_ASKPASS`
-  * environment variable) to request the password for the user [[gitHubLogin]].
+  * environment variable) to request the password for the user [[gitHubLogin]]. //TODO
   *
   * This program could just be a simple shell script that echos the password.
   *
   * See also [[https://git-scm.com/docs/gitcredentials]].
   */
+sealed trait GitWebConfig {
+  val host: String
+  val login: String
+}
+final case class GitHubConfig(host: String, login: String) extends GitWebConfig
+final case class GitLabConfig(host: String, login: String) extends GitWebConfig
+
 final case class Config(
     workspace: File,
     reposFile: File,
     gitAuthor: Author,
-    gitHubApiHost: String,
-    gitHubLogin: String,
+    gitwebConfig: GitWebConfig,
     gitAskPass: File,
     signCommits: Boolean,
     whitelistedDirectories: List[String],
@@ -57,26 +63,33 @@ final case class Config(
     doNotFork: Boolean,
     keepCredentials: Boolean
 ) {
-  def gitHubUser[F[_]](implicit F: Sync[F]): F[AuthenticatedUser] =
-    util.uri.fromString[F](gitHubApiHost).flatMap { url =>
-      val urlWithUser = util.uri.withUserInfo(url, gitHubLogin).renderString
+  def gitwebUser[F[_]](implicit F: Sync[F]): F[AuthenticatedUser] = gitwebConfig match {
+    case GitHubConfig(host, login) => util.uri.fromString[F](host).flatMap { url =>
+      val urlWithUser = util.uri.withUserInfo(url, login).renderString
       val prompt = s"Password for '$urlWithUser': "
       F.delay {
         val password = Process(List(gitAskPass.pathAsString, prompt)).!!.trim
-        AuthenticatedUser(gitHubLogin, password)
+        AuthenticatedUser(login, password)
       }
     }
+    case GitLabConfig(_, _) => ???
+  }
 }
 
 object Config {
   def create[F[_]](args: Cli.Args)(implicit F: Sync[F]): F[Config] =
     F.delay {
+      val gitwebConfig: GitWebConfig =
+        if (args.gitwebType == "github") {
+          GitHubConfig(args.gitwebApiHost, args.gitwebLogin)
+        } else {
+          GitLabConfig(args.gitwebApiHost, args.gitwebLogin)
+        }
       Config(
         workspace = args.workspace.toFile,
         reposFile = args.reposFile.toFile,
         gitAuthor = Author(args.gitAuthorName, args.gitAuthorEmail),
-        gitHubApiHost = args.githubApiHost,
-        gitHubLogin = args.githubLogin,
+        gitwebConfig = gitwebConfig,
         gitAskPass = args.gitAskPass.toFile,
         signCommits = args.signCommits,
         whitelistedDirectories = args.whitelist,

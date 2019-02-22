@@ -50,7 +50,7 @@ lazy val core = myCrossProject("core")
     buildInfoPackage := moduleRootPkg.value,
     initialCommands += s"""
       import ${moduleRootPkg.value}._
-      import ${moduleRootPkg.value}.github.data._
+      import ${moduleRootPkg.value}.gitweb.data._
       import better.files.File
       import cats.effect.ContextShift
       import cats.effect.IO

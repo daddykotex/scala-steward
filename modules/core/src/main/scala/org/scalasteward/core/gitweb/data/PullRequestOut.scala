@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-package org.scalasteward.core.github.data
+package org.scalasteward.core.gitweb.data
 
-import io.circe.{KeyDecoder, KeyEncoder}
+import cats.implicits._
+import io.circe.Decoder
+import io.circe.generic.semiauto._
+import org.http4s.Uri
+import org.scalasteward.core.util.uri.uriDecoder
 
-final case class Repo(
-    owner: String,
-    repo: String
+final case class PullRequestOut(
+    html_url: Uri,
+    state: String,
+    title: String
 ) {
-  def show: String = s"$owner/$repo"
+  def isClosed: Boolean =
+    state === "closed"
 }
 
-object Repo {
-  implicit val repoKeyDecoder: KeyDecoder[Repo] = {
-    val string = "([^/]+)"
-    val / = s"$string/$string".r
-    KeyDecoder.instance {
-      case owner / repo => Some(Repo(owner, repo))
-      case _            => None
-    }
-  }
+object PullRequestOut {
+  implicit val pullRequestOutDecoder: Decoder[PullRequestOut] =
+    deriveDecoder
 
-  implicit val repoKeyEncoder: KeyEncoder[Repo] =
-    KeyEncoder.instance(repo => repo.owner + "/" + repo.repo)
+  // prevent IntelliJ from removing the import of uriDecoder
+  locally(uriDecoder)
 }

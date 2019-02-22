@@ -17,7 +17,7 @@
 package org.scalasteward.core.github
 
 import org.scalasteward.core.git.Branch
-import org.scalasteward.core.github.data.Repo
+import org.scalasteward.core.gitweb.data.Repo
 
 class Url(apiHost: String) {
   def branches(repo: Repo, branch: Branch): String =

@@ -20,8 +20,8 @@ import cats.implicits._
 import io.chrisdavenport.log4cats.Logger
 import org.scalasteward.core.application.Config
 import org.scalasteward.core.git.{GitAlg, Sha1}
-import org.scalasteward.core.github.GitHubApiAlg
-import org.scalasteward.core.github.data.{Repo, RepoOut}
+import org.scalasteward.core.gitweb.GitWebApiAlg
+import org.scalasteward.core.gitweb.data.{Repo, RepoOut}
 import org.scalasteward.core.sbt.SbtAlg
 import org.scalasteward.core.util
 import org.scalasteward.core.util.MonadThrowable
@@ -31,7 +31,7 @@ class DependencyService[F[_]](
     implicit
     config: Config,
     dependencyRepository: DependencyRepository[F],
-    gitHubApiAlg: GitHubApiAlg[F],
+    gitHubApiAlg: GitWebApiAlg[F],
     gitAlg: GitAlg[F],
     logger: Logger[F],
     sbtAlg: SbtAlg[F]
@@ -57,7 +57,7 @@ class DependencyService[F[_]](
   ): F[Unit] =
     for {
       _ <- logger.info(s"Refresh dependencies of ${repo.show}")
-      cloneUrl = util.uri.withUserInfo(repoOut.clone_url, config.gitHubLogin)
+      cloneUrl = util.uri.withUserInfo(repoOut.clone_url, config.gitwebConfig.login)
       _ <- gitAlg.clone(repo, cloneUrl)
       _ <- gitAlg.checkAndSyncFork(repo, repoOut)
       dependencies <- sbtAlg.getDependencies(repo)
