@@ -14,9 +14,22 @@
  * limitations under the License.
  */
 
-package org.scalasteward.core.github.data
+package org.scalasteward.core.vcs.data
 
-final case class AuthenticatedUser(
-    login: String,
-    accessToken: String
-)
+import org.http4s.Uri
+import org.scalasteward.core.git.Branch
+import org.scalasteward.core.util.ApplicativeThrowable
+
+final case class RepoOut(
+    name: String,
+    owner: UserOut,
+    parent: Option[RepoOut],
+    clone_url: Uri,
+    default_branch: Branch
+) {
+  def parentOrRaise[F[_]](implicit F: ApplicativeThrowable[F]): F[RepoOut] =
+    parent.fold(F.raiseError[RepoOut](new Throwable(s"repo $name has no parent")))(F.pure)
+
+  def repo: Repo =
+    Repo(owner.login, name)
+}

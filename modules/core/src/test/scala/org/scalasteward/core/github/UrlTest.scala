@@ -2,11 +2,12 @@ package org.scalasteward.core.github
 
 import org.http4s.Uri
 import org.scalasteward.core.git.Branch
-import org.scalasteward.core.github.data.Repo
+import org.scalasteward.core.vcs.github.GitHubUrl
+import org.scalasteward.core.vcs.data.Repo
 import org.scalatest.{FunSuite, Matchers}
 
 class UrlTest extends FunSuite with Matchers {
-  val url = new Url(Uri.uri("https://api.github.com"))
+  val url = new GitHubUrl(Uri.uri("https://api.github.com"))
   import url._
 
   val repo = Repo("fthomas", "refined")

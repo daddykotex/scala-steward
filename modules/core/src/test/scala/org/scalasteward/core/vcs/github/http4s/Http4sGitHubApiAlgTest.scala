@@ -1,4 +1,4 @@
-package org.scalasteward.core.github.http4s
+package org.scalasteward.core.vcs.github.http4s
 
 import cats.effect.IO
 import io.circe.literal._
@@ -9,7 +9,7 @@ import org.http4s.implicits._
 import org.http4s.{HttpRoutes, Uri}
 import org.scalasteward.core.git.Sha1.HexString
 import org.scalasteward.core.git.{Branch, Sha1}
-import org.scalasteward.core.github.data._
+import org.scalasteward.core.vcs.data._
 import org.scalasteward.core.mock.MockContext.config
 import org.scalatest.{FunSuite, Matchers}
 

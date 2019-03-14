@@ -1,0 +1,67 @@
+{
+  "id" : 3148,
+  "description" : "",
+  "name" : "dashboard-reporting",
+  "name_with_namespace" : "dataviz / dashboard-reporting",
+  "path" : "dashboard-reporting",
+  "path_with_namespace" : "dataviz/dashboard-reporting",
+  "created_at" : "2019-02-06T20:16:01.394Z",
+  "default_branch" : "master",
+  "tag_list" : [
+  ],
+  "ssh_url_to_repo" : "gitlab@gitlab.com:dataviz/dashboard-reporting.git",
+  "http_url_to_repo" : "https://gitlab.com/dataviz/dashboard-reporting.git",
+  "web_url" : "https://gitlab.com/dataviz/dashboard-reporting",
+  "readme_url" : "https://gitlab.com/dataviz/dashboard-reporting/blob/master/README.md",
+  "avatar_url" : "https://gitlab.com/uploads/-/system/project/avatar/3148/tartiflette-zoom.jpg",
+  "star_count" : 0,
+  "forks_count" : 2,
+  "last_activity_at" : "2019-03-20T18:17:59.852Z",
+  "namespace" : {
+    "id" : 90,
+    "name" : "dataviz",
+    "path" : "dataviz",
+    "kind" : "group",
+    "full_path" : "dataviz",
+    "parent_id" : null
+  },
+  "_links" : {
+    "self" : "https://gitlab.com/api/v4/projects/3148",
+    "issues" : "https://gitlab.com/api/v4/projects/3148/issues",
+    "merge_requests" : "https://gitlab.com/api/v4/projects/3148/merge_requests",
+    "repo_branches" : "https://gitlab.com/api/v4/projects/3148/repository/branches",
+    "labels" : "https://gitlab.com/api/v4/projects/3148/labels",
+    "events" : "https://gitlab.com/api/v4/projects/3148/events",
+    "members" : "https://gitlab.com/api/v4/projects/3148/members"
+  },
+  "archived" : false,
+  "visibility" : "internal",
+  "resolve_outdated_diff_discussions" : false,
+  "container_registry_enabled" : true,
+  "issues_enabled" : true,
+  "merge_requests_enabled" : true,
+  "wiki_enabled" : true,
+  "jobs_enabled" : true,
+  "snippets_enabled" : true,
+  "shared_runners_enabled" : true,
+  "lfs_enabled" : false,
+  "creator_id" : 32,
+  "import_status" : "none",
+  "open_issues_count" : 0,
+  "public_jobs" : true,
+  "ci_config_path" : null,
+  "shared_with_groups" : [
+  ],
+  "only_allow_merge_if_pipeline_succeeds" : true,
+  "request_access_enabled" : false,
+  "only_allow_merge_if_all_discussions_are_resolved" : true,
+  "printing_merge_request_link_enabled" : true,
+  "merge_method" : "ff",
+  "permissions" : {
+    "project_access" : null,
+    "group_access" : {
+      "access_level" : 30,
+      "notification_level" : 3
+    }
+  }
+}

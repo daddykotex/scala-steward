@@ -20,13 +20,14 @@ import cats.implicits._
 import io.chrisdavenport.log4cats.Logger
 import org.scalasteward.core.application.Config
 import org.scalasteward.core.git.{Branch, GitAlg}
-import org.scalasteward.core.github.GitHubApiAlg
-import org.scalasteward.core.github.data.{NewPullRequestData, Repo}
+import org.scalasteward.core.vcs.VCSApiAlg
 import org.scalasteward.core.model.Update
 import org.scalasteward.core.sbt.SbtAlg
 import org.scalasteward.core.update.FilterAlg
 import org.scalasteward.core.util.{BracketThrowable, LogAlg}
-import org.scalasteward.core.{git, github, util}
+import org.scalasteward.core.{git, util}
+import org.scalasteward.core.vcs
+import org.scalasteward.core.vcs.data.{NewPullRequestData, Repo}
 
 class NurtureAlg[F[_]](
     implicit
@@ -34,7 +35,7 @@ class NurtureAlg[F[_]](
     editAlg: EditAlg[F],
     filterAlg: FilterAlg[F],
     gitAlg: GitAlg[F],
-    gitHubApiAlg: GitHubApiAlg[F],
+    vcsApiAlg: VCSApiAlg[F],
     logAlg: LogAlg[F],
     logger: Logger[F],
     pullRequestRepo: PullRequestRepository[F],
@@ -55,7 +56,7 @@ class NurtureAlg[F[_]](
   def cloneAndSync(repo: Repo): F[Branch] =
     for {
       _ <- logger.info(s"Clone and synchronize ${repo.show}")
-      repoOut <- gitHubApiAlg.createForkOrGetRepo(config, repo)
+      repoOut <- vcsApiAlg.createForkOrGetRepo(config, repo)
       cloneUrl = util.uri.withUserInfo.set(config.gitHubLogin)(repoOut.clone_url)
       _ <- gitAlg.clone(repo, cloneUrl)
       _ <- gitAlg.setAuthor(repo, config.gitAuthor)
@@ -79,8 +80,8 @@ class NurtureAlg[F[_]](
   def processUpdate(data: UpdateData): F[Unit] =
     for {
       _ <- logger.info(s"Process update ${data.update.show}")
-      head = github.headFor(github.getLogin(config, data.repo), data.update)
-      pullRequests <- gitHubApiAlg.listPullRequests(data.repo, head)
+      head = vcsApiAlg.sourceFor(data.repo, data.update)
+      pullRequests <- vcsApiAlg.listPullRequests(data.repo, head)
       _ <- pullRequests.headOption match {
         case Some(pr) if pr.isClosed =>
           logger.info(s"PR ${pr.html_url} is closed")
@@ -116,8 +117,8 @@ class NurtureAlg[F[_]](
   def createPullRequest(data: UpdateData): F[Unit] =
     for {
       _ <- logger.info(s"Create PR ${data.updateBranch.name}")
-      requestData = NewPullRequestData.from(data, github.getLogin(config, data.repo))
-      pr <- gitHubApiAlg.createPullRequest(data.repo, requestData)
+      requestData = NewPullRequestData.from(data, vcs.getLogin(config, data.repo), vcsApiAlg.sourceFor)
+      pr <- vcsApiAlg.createPullRequest(data.repo, requestData)
       _ <- pullRequestRepo.createOrUpdate(data.repo, pr.html_url, data.baseSha1, data.update)
       _ <- logger.info(s"Created PR ${pr.html_url}")
     } yield ()

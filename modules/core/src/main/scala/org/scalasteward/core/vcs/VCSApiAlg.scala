@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package org.scalasteward.core.github
+package org.scalasteward.core.vcs
 
 import cats.Monad
 import cats.implicits._
 import org.scalasteward.core.application.Config
 import org.scalasteward.core.git.Branch
-import org.scalasteward.core.github.data._
+import org.scalasteward.core.model.Update
+import org.scalasteward.core.vcs.data._
 import org.scalasteward.core.util.MonadThrowable
 
-trait GitHubApiAlg[F[_]] {
+trait VCSApiAlg[F[_]] {
+  /** */
+  def sourceFor(repo: Repo, update: Update): String
 
   /** https://developer.github.com/v3/repos/forks/#create-a-fork */
   def createFork(repo: Repo): F[RepoOut]
@@ -50,7 +53,7 @@ trait GitHubApiAlg[F[_]] {
     if (config.doNotFork) getRepoWithDefaultBranch(repo)
     else createForkWithDefaultBranch(repo)
 
-  def createForkWithDefaultBranch(repo: Repo)(
+  private def createForkWithDefaultBranch(repo: Repo)(
       implicit F: MonadThrowable[F]
   ): F[(RepoOut, BranchOut)] =
     for {
@@ -59,7 +62,7 @@ trait GitHubApiAlg[F[_]] {
       branchOut <- getDefaultBranch(parent)
     } yield (fork, branchOut)
 
-  def getRepoWithDefaultBranch(repo: Repo)(
+  private def getRepoWithDefaultBranch(repo: Repo)(
       implicit F: Monad[F]
   ): F[(RepoOut, BranchOut)] =
     for {
@@ -67,6 +70,6 @@ trait GitHubApiAlg[F[_]] {
       branchOut <- getDefaultBranch(repoOut)
     } yield (repoOut, branchOut)
 
-  def getDefaultBranch(repoOut: RepoOut): F[BranchOut] =
+  private def getDefaultBranch(repoOut: RepoOut): F[BranchOut] =
     getBranch(repoOut.repo, repoOut.default_branch)
 }

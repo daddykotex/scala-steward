@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.scalasteward.core.github.data
-
+package org.scalasteward.core.vcs.data
 import io.circe.{KeyDecoder, KeyEncoder}
+import org.scalasteward.core.util.uri.uriDecoder
 
 final case class Repo(
     owner: String,
@@ -26,6 +26,7 @@ final case class Repo(
 }
 
 object Repo {
+
   implicit val repoKeyDecoder: KeyDecoder[Repo] = {
     val string = "([^/]+)"
     val / = s"$string/$string".r
@@ -37,4 +38,7 @@ object Repo {
 
   implicit val repoKeyEncoder: KeyEncoder[Repo] =
     KeyEncoder.instance(repo => repo.owner + "/" + repo.repo)
+
+  // prevent IntelliJ from removing the import of uriDecoder
+  locally(uriDecoder)
 }

@@ -1,13 +1,17 @@
-package org.scalasteward.core.github.data
+package org.scalasteward.core.vcs.github
 
 import cats.effect.IO
 import io.circe.parser
 import org.http4s.Uri
 import org.scalasteward.core.git.Branch
+import org.scalasteward.core.vcs.data.{Repo, RepoOut, UserOut}
 import org.scalatest.{FunSuite, Matchers}
+
 import scala.io.Source
 
 class RepoOutTest extends FunSuite with Matchers {
+  import org.scalasteward.core.vcs.github.http4s.GitHubJsonCodec._
+
   val parent =
     RepoOut(
       "base.g8",
@@ -27,7 +31,7 @@ class RepoOutTest extends FunSuite with Matchers {
     )
 
   test("decode") {
-    val input = Source.fromResource("create-fork.json").mkString
+    val input = Source.fromResource("github/create-fork.json").mkString
     parser.decode[RepoOut](input) shouldBe Right(fork)
   }
 

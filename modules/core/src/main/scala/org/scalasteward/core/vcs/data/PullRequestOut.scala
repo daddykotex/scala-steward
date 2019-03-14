@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package org.scalasteward.core
+package org.scalasteward.core.vcs.data
 
-import org.scalasteward.core.model.Update
-import org.scalasteward.core.application.Config
-import org.scalasteward.core.github.data.Repo
+import cats.implicits._
+import org.http4s.Uri
 
-package object github {
-
-  def getLogin(config: Config, repo: Repo): String =
-    if (config.doNotFork) repo.owner
-    else config.gitHubLogin
-
-  def headFor(login: String, update: Update): String =
-    s"$login:${git.branchFor(update).name}"
+final case class PullRequestOut(
+    html_url: Uri,
+    state: String,
+    title: String
+) {
+  def isClosed: Boolean =
+    state === "closed"
 }

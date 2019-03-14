@@ -14,16 +14,25 @@
  * limitations under the License.
  */
 
-package org.scalasteward.core.github.data
+package org.scalasteward.core.vcs.github
 
-import io.circe.Decoder
-import io.circe.generic.semiauto._
+import org.http4s.Uri
+import org.scalasteward.core.git.Branch
+import org.scalasteward.core.vcs.data.Repo
 
-final case class UserOut(
-    login: String
-)
+class GitHubUrl(apiHost: Uri) {
+  def branches(repo: Repo, branch: Branch): Uri =
+    repos(repo) / "branches" / branch.name
 
-object UserOut {
-  implicit val userOutDecoder: Decoder[UserOut] =
-    deriveDecoder
+  def forks(repo: Repo): Uri =
+    repos(repo) / "forks"
+
+  def listPullRequests(repo: Repo, head: String): Uri =
+    pulls(repo).withQueryParam("head", head).withQueryParam("state", "all")
+
+  def pulls(repo: Repo): Uri =
+    repos(repo) / "pulls"
+
+  def repos(repo: Repo): Uri =
+    apiHost / "repos" / repo.owner / repo.repo
 }

@@ -1,14 +1,18 @@
-package org.scalasteward.core.github.data
+package org.scalasteward.core.vcs.github
 
 import io.circe.parser
 import org.scalasteward.core.git.Sha1.HexString
 import org.scalasteward.core.git.{Branch, Sha1}
+import org.scalasteward.core.vcs.data.{BranchOut, CommitOut}
 import org.scalatest.{FunSuite, Matchers}
+
 import scala.io.Source
 
 class BranchOutTest extends FunSuite with Matchers {
+  import org.scalasteward.core.vcs.github.http4s.GitHubJsonCodec._
+
   test("decode") {
-    val input = Source.fromResource("get-branch.json").mkString
+    val input = Source.fromResource("github/get-branch.json").mkString
     parser.decode[BranchOut](input) shouldBe
       Right(
         BranchOut(

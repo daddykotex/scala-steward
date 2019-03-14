@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package org.scalasteward.core.github.data
+package org.scalasteward.core.vcs.data
 
 import cats.implicits._
-import io.circe.Encoder
-import io.circe.generic.semiauto._
 import org.scalasteward.core.git.Branch
 import org.scalasteward.core.model.Update
 import org.scalasteward.core.nurture.UpdateData
 import org.scalasteward.core.repoconfig.RepoConfigAlg
-import org.scalasteward.core.{git, github}
+import org.scalasteward.core.git
 
 final case class NewPullRequestData(
     title: String,
@@ -33,8 +31,6 @@ final case class NewPullRequestData(
 )
 
 object NewPullRequestData {
-  implicit val newPullRequestDataEncoder: Encoder[NewPullRequestData] =
-    deriveEncoder
 
   def bodyFor(update: Update, login: String): String = {
     val artifacts = update match {
@@ -64,11 +60,11 @@ object NewPullRequestData {
         |""".stripMargin.trim
   }
 
-  def from(data: UpdateData, login: String): NewPullRequestData =
+  def from(data: UpdateData, login: String, sourceF: (Repo, Update) => String): NewPullRequestData =
     NewPullRequestData(
       title = git.commitMsgFor(data.update),
       body = bodyFor(data.update, login),
-      head = github.headFor(login, data.update),
+      head = sourceF(data.repo, data.update),
       base = data.baseBranch
     )
 }

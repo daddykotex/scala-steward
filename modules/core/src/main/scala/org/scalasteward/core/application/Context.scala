@@ -24,9 +24,8 @@ import org.http4s.client.blaze.BlazeClientBuilder
 import org.scalasteward.core.dependency.json.JsonDependencyRepository
 import org.scalasteward.core.dependency.{DependencyRepository, DependencyService}
 import org.scalasteward.core.git.GitAlg
-import org.scalasteward.core.github.GitHubApiAlg
-import org.scalasteward.core.github.data.AuthenticatedUser
-import org.scalasteward.core.github.http4s.Http4sGitHubApiAlg
+import org.scalasteward.core.vcs.VCSApiAlg
+import org.scalasteward.core.vcs.data.AuthenticatedUser
 import org.scalasteward.core.io.{FileAlg, ProcessAlg, WorkspaceAlg}
 import org.scalasteward.core.nurture.json.JsonPullRequestRepo
 import org.scalasteward.core.nurture.{EditAlg, NurtureAlg, PullRequestRepository}
@@ -35,6 +34,8 @@ import org.scalasteward.core.sbt.SbtAlg
 import org.scalasteward.core.update.json.JsonUpdateRepository
 import org.scalasteward.core.update.{FilterAlg, UpdateRepository, UpdateService}
 import org.scalasteward.core.util.{DateTimeAlg, LogAlg}
+import org.scalasteward.core.vcs.gitlab.http4s.Http4sGitLabApiAlg
+
 import scala.concurrent.ExecutionContext
 
 final case class Context[F[_]](
@@ -70,7 +71,7 @@ object Context {
       implicit val dependencyRepository: DependencyRepository[F] = new JsonDependencyRepository[F]
       implicit val editAlg: EditAlg[F] = EditAlg.create[F]
       implicit val gitAlg: GitAlg[F] = GitAlg.create[F]
-      implicit val gitHubApiAlg: GitHubApiAlg[F] = new Http4sGitHubApiAlg[F]
+      implicit val gitHubApiAlg: VCSApiAlg[F] = new Http4sGitLabApiAlg[F]
       implicit val pullRequestRepo: PullRequestRepository[F] = new JsonPullRequestRepo[F]
       implicit val sbtAlg: SbtAlg[F] = SbtAlg.create[F]
       implicit val updateRepository: UpdateRepository[F] = new JsonUpdateRepository[F]

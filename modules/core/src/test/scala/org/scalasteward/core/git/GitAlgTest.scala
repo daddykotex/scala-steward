@@ -2,7 +2,7 @@ package org.scalasteward.core.git
 
 import org.http4s.Uri
 import org.scalasteward.core.application.Config
-import org.scalasteward.core.github.data.{Repo, RepoOut, UserOut}
+import org.scalasteward.core.vcs.data.{Repo, RepoOut, UserOut}
 import org.scalasteward.core.mock.MockContext._
 import org.scalasteward.core.mock.{MockContext, MockState}
 import org.scalatest.{FunSuite, Matchers}

@@ -14,25 +14,11 @@
  * limitations under the License.
  */
 
-package org.scalasteward.core.github
+package org.scalasteward.core.vcs.data
 
-import org.http4s.Uri
 import org.scalasteward.core.git.Branch
-import org.scalasteward.core.github.data.Repo
 
-class Url(apiHost: Uri) {
-  def branches(repo: Repo, branch: Branch): Uri =
-    repos(repo) / "branches" / branch.name
-
-  def forks(repo: Repo): Uri =
-    repos(repo) / "forks"
-
-  def listPullRequests(repo: Repo, head: String): Uri =
-    pulls(repo).withQueryParam("head", head).withQueryParam("state", "all")
-
-  def pulls(repo: Repo): Uri =
-    repos(repo) / "pulls"
-
-  def repos(repo: Repo): Uri =
-    apiHost / "repos" / repo.owner / repo.repo
-}
+final case class BranchOut(
+    name: Branch,
+    commit: CommitOut
+)

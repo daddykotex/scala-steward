@@ -14,20 +14,48 @@
  * limitations under the License.
  */
 
-package org.scalasteward.core.github.http4s
+package org.scalasteward.core.vcs.github.http4s
 
 import cats.effect.Sync
-import io.circe.Decoder
+import io.circe._
+import io.circe.generic.semiauto._
 import org.http4s.Method.{GET, POST}
 import org.http4s.circe.{jsonEncoderOf, jsonOf}
 import org.http4s.client.Client
 import org.http4s.headers.Authorization
 import org.http4s.{BasicCredentials, Headers, Request, Uri}
 import org.scalasteward.core.application.Config
+import org.scalasteward.core.{git, vcs}
 import org.scalasteward.core.git.Branch
-import org.scalasteward.core.github._
-import org.scalasteward.core.github.data._
-import org.scalasteward.core.github.http4s.Http4sGitHubApiAlg._
+import org.scalasteward.core.model.Update
+import org.scalasteward.core.util.uri.uriDecoder
+import org.scalasteward.core.vcs.data._
+import org.scalasteward.core.vcs.VCSApiAlg
+import org.scalasteward.core.vcs.github._
+import org.scalasteward.core.vcs.github.http4s.Http4sGitHubApiAlg._
+
+object GitHubJsonCodec {
+  // prevent IntelliJ from removing the import of uriDecoder
+  locally(uriDecoder)
+
+  implicit val repoOutDecoder: Decoder[RepoOut] =
+    deriveDecoder
+
+  implicit val userOutDecoder: Decoder[UserOut] =
+    deriveDecoder
+
+  implicit val pullRequestOutDecoder: Decoder[PullRequestOut] =
+    deriveDecoder
+
+  implicit val newPullRequestDataEncoder: Encoder[NewPullRequestData] =
+    deriveEncoder
+
+  implicit val commitOutDecoder: Decoder[CommitOut] =
+    deriveDecoder
+
+  implicit val branchOutDecoder: Decoder[BranchOut] =
+    deriveDecoder
+}
 
 class Http4sGitHubApiAlg[F[_]](
     implicit
@@ -35,8 +63,13 @@ class Http4sGitHubApiAlg[F[_]](
     config: Config,
     user: AuthenticatedUser,
     F: Sync[F]
-) extends GitHubApiAlg[F] {
-  val url = new Url(config.gitHubApiHost)
+) extends VCSApiAlg[F] {
+  import GitHubJsonCodec._
+
+  val url = new GitHubUrl(config.gitHubApiHost)
+
+  override def sourceFor(repo: Repo, update: Update): String =
+    s"${vcs.getLogin(config, repo)}:${git.branchFor(update).name}"
 
   override def createFork(repo: Repo): F[RepoOut] = {
     val req = Request[F](POST, url.forks(repo))
