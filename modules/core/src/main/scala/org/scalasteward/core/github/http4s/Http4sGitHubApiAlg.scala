@@ -16,6 +16,7 @@
 
 package org.scalasteward.core.github.http4s
 
+import cats.Monad
 import cats.effect.Sync
 import org.http4s.{Request, Uri}
 import org.scalasteward.core.git.Branch
@@ -23,6 +24,7 @@ import org.scalasteward.core.github._
 import org.scalasteward.core.vcs.data._
 import org.scalasteward.core.util.HttpJsonClient
 import org.scalasteward.core.vcs.VCSApiAlg
+import org.scalasteward.core.util.MonadThrowable
 
 final class Http4sGitHubApiAlg[F[_]: Sync](
     gitHubApiHost: Uri,
@@ -33,10 +35,12 @@ final class Http4sGitHubApiAlg[F[_]: Sync](
 ) extends VCSApiAlg[F] {
   private val url = new Url(gitHubApiHost)
 
-  override def createFork(repo: Repo): F[RepoOut] =
+  override def createFork(repo: Repo)(implicit F: MonadThrowable[F]): F[RepoOut] =
     client.post(url.forks(repo), modify(repo))
 
-  override def createPullRequest(repo: Repo, data: NewPullRequestData): F[PullRequestOut] =
+  override def createPullRequest(repo: Repo, data: NewPullRequestData)(
+      implicit F: Monad[F]
+  ): F[PullRequestOut] =
     client.postWithBody(url.pulls(repo), data, modify(repo))
 
   override def getBranch(repo: Repo, branch: Branch): F[BranchOut] =

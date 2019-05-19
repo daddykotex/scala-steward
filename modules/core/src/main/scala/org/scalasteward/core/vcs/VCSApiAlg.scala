@@ -25,9 +25,11 @@ import org.scalasteward.core.util.MonadThrowable
 
 trait VCSApiAlg[F[_]] {
 
-  def createFork(repo: Repo): F[RepoOut]
+  def createFork(repo: Repo)(implicit F: MonadThrowable[F]): F[RepoOut]
 
-  def createPullRequest(repo: Repo, data: NewPullRequestData): F[PullRequestOut]
+  def createPullRequest(repo: Repo, data: NewPullRequestData)(
+      implicit F: Monad[F]
+  ): F[PullRequestOut]
 
   def getBranch(repo: Repo, branch: Branch): F[BranchOut]
 
@@ -38,7 +40,7 @@ trait VCSApiAlg[F[_]] {
   def getDefaultBranch(repoOut: RepoOut): F[BranchOut] =
     getBranch(repoOut.repo, repoOut.default_branch)
 
-  def createForkOrGetRepo(config: Config, repo: Repo): F[RepoOut] =
+  def createForkOrGetRepo(config: Config, repo: Repo)(implicit F: MonadThrowable[F]): F[RepoOut] =
     if (config.doNotFork) getRepo(repo)
     else createFork(repo)
 
