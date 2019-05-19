@@ -21,13 +21,12 @@ import io.chrisdavenport.log4cats.Logger
 import org.scalasteward.core.application.Config
 import org.scalasteward.core.git.{Branch, GitAlg}
 import org.scalasteward.core.vcs.data.{NewPullRequestData, Repo}
-import org.scalasteward.core.github.GitHubApiAlg
 import org.scalasteward.core.model.Update
 import org.scalasteward.core.repoconfig.RepoConfigAlg
 import org.scalasteward.core.sbt.SbtAlg
 import org.scalasteward.core.update.FilterAlg
 import org.scalasteward.core.util.{BracketThrowable, LogAlg}
-import org.scalasteward.core.vcs.VCSRepoAlg
+import org.scalasteward.core.vcs.{VCSApiAlg, VCSRepoAlg}
 import org.scalasteward.core.{git, util, vcs}
 
 class NurtureAlg[F[_]](
@@ -37,7 +36,7 @@ class NurtureAlg[F[_]](
     repoConfigAlg: RepoConfigAlg[F],
     filterAlg: FilterAlg[F],
     gitAlg: GitAlg[F],
-    gitHubApiAlg: GitHubApiAlg[F],
+    vcsApiAlg: VCSApiAlg[F],
     vcsRepoAlg: VCSRepoAlg[F],
     logAlg: LogAlg[F],
     logger: Logger[F],
@@ -59,7 +58,7 @@ class NurtureAlg[F[_]](
   def cloneAndSync(repo: Repo): F[Branch] =
     for {
       _ <- logger.info(s"Clone and synchronize ${repo.show}")
-      repoOut <- gitHubApiAlg.createForkOrGetRepo(config, repo)
+      repoOut <- vcsApiAlg.createForkOrGetRepo(config, repo)
       _ <- vcsRepoAlg.clone(repo, repoOut)
       parent <- vcsRepoAlg.syncFork(repo, repoOut)
     } yield parent.default_branch
@@ -83,7 +82,7 @@ class NurtureAlg[F[_]](
     for {
       _ <- logger.info(s"Process update ${data.update.show}")
       head = vcs.headFor(vcs.getLogin(config, data.repo), data.update)
-      pullRequests <- gitHubApiAlg.listPullRequests(data.repo, head, data.baseBranch)
+      pullRequests <- vcsApiAlg.listPullRequests(data.repo, head, data.baseBranch)
       _ <- pullRequests.headOption match {
         case Some(pr) if pr.isClosed =>
           logger.info(s"PR ${pr.html_url} is closed")
@@ -122,8 +121,8 @@ class NurtureAlg[F[_]](
     for {
       _ <- logger.info(s"Create PR ${data.updateBranch.name}")
       headLogin = vcs.getLogin(config, data.repo)
-      requestData = NewPullRequestData.from(data, headLogin, config.gitHubLogin)
-      pr <- gitHubApiAlg.createPullRequest(data.repo, requestData)
+      requestData = NewPullRequestData.from(data, headLogin, config.vcsLogin)
+      pr <- vcsApiAlg.createPullRequest(data.repo, requestData)
       _ <- pullRequestRepo.createOrUpdate(
         data.repo,
         pr.html_url,
