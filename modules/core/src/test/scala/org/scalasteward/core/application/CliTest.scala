@@ -16,6 +16,7 @@ class CliTest extends FunSuite with Matchers {
         List("--repos-file", "b"),
         List("--git-author-name", "c"),
         List("--git-author-email", "d"),
+        List("--vcs-type", "gitlab"),
         List("--vcs-api-host", "http://example.com"),
         List("--vcs-login", "e"),
         List("--git-ask-pass", "f"),
@@ -27,6 +28,7 @@ class CliTest extends FunSuite with Matchers {
       Cli.Args(
         workspace = "a",
         reposFile = "b",
+        vcsType = SupportedVCS.Gitlab,
         gitAuthorName = "c",
         gitAuthorEmail = "d",
         vcsApiHost = Uri.uri("http://example.com"),
