@@ -24,7 +24,7 @@ package object git {
     Branch(s"update/${update.name}-${update.nextVersion}")
 
   def commitMsgFor(update: Update): String =
-    s"Update ${show.oneLiner(update)} to ${update.nextVersion}"
+    s"chore(update): update ${show.oneLiner(update)} to ${update.nextVersion}"
 
   // man 7 gitrevisions:
   // When you have two commits r1 and r2 you can ask for commits that are
