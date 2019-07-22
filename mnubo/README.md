@@ -13,27 +13,21 @@ The development of scala-steward happens upstream. This repository is a mirror o
 one, with a few extra commits to allow us to run it in here. There is a manual GitLab CI pipeline
 that allows us to keep up with the changes. See the `.gitlab-ci.yml`.
 
+List of changes we made on top of the original source code:
+
+- Anything under `mnubo/`
+- A change to the PR title format
+- A change to set the PR to be closed on merge
+
+### Pulling changes
+
+Once upon a time, it's recommended that you run the `project:rebase` pipeline in Gitlab.
+This will launch `./mnubo/rebase.sh` which will fetch the latest changes from GitHub and
+rebase our changes on top of it.
+
+This pipeline is manual so it must be triggered from the Gitlab UI. It will also push a
+new tag which will generate a new image and push it to our docker registry.
+
 ## Running
 
-When you've built the docker image, take note of that image name and use it in the
-following command:
-
-```bash
-docker run -it \
- --rm \
- -v "sbt:/root/.sbt" \
- -v "ivy2:/root/.ivy2" \
- -v /Users/davidfrancoeur/workspace/scala-steward/tmprunning:/data \
- fthomas/scala-steward:0.3.0-131-47e40fda \
- -d \
- -DROOT_LOG_LEVEL="DEBUG" \
- --workspace "/data/workspace/" \
- --repos-file "/data/repos.md" \
- --git-author-name "Scala Steward" \
- --git-author-email "dfrancoeur+steward@mnubo.com" \
- --vcs-type "gitlab" \
- --vcs-api-host "https://git-lab1.mtl.mnubo.com/api/v4/" \
- --vcs-login "scala-steward" \
- --do-not-fork \
- --git-ask-pass "/data/pass.sh"
-```
+Coming soon in K8S.
