@@ -1,0 +1,3 @@
+- dataviz/dashboard-reporting
+- dataviz/dashboards
+- dataviz/partners-integration
