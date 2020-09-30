@@ -2,6 +2,7 @@ package org.scalasteward.core.git
 
 import better.files.File
 import cats.Monad
+import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all._
 import org.http4s.syntax.literals._
@@ -124,9 +125,49 @@ class GitAlgTest extends AnyFunSuite with Matchers {
     } yield (c1, m1, c2, m2)
     p.unsafeRunSync() shouldBe ((true, false, false, true))
   }
+
+  test("branches") {
+    val repo = Repo("list", "branches")
+    val createdBranches = NonEmptyList(
+      Branch("update/cats-2.0.4"),
+      List(Branch("update/cats-2.0.2"), Branch("update/sbt-scalafmt-2.3.0"))
+    )
+    val p = for {
+      repoDir <- workspaceAlg.repoDir(repo)
+
+      _ <- GitAlgTest.createGitRepoWithBranches[IO](
+        repoDir,
+        createdBranches
+      )
+      c1 <- ioGitAlg.branches(repo)
+    } yield c1
+
+    val expected = createdBranches.prepend(Branch("master"))
+    p.unsafeRunSync() should contain theSameElementsAs expected.toList
+  }
 }
 
 object GitAlgTest {
+
+  def createGitRepoWithBranches[F[_]](repoDir: File, branches: NonEmptyList[Branch])(implicit
+      fileAlg: FileAlg[F],
+      processAlg: ProcessAlg[F],
+      F: Monad[F]
+  ): F[Unit] =
+    for {
+      _ <- fileAlg.deleteForce(repoDir)
+      _ <- fileAlg.ensureExists(repoDir)
+
+      _ <- processAlg.exec(Nel.of("git", "init", "."), repoDir)
+      _ <- fileAlg.writeFile(repoDir / "file1", "file1, line1")
+      _ <- processAlg.exec(Nel.of("git", "add", "file1"), repoDir)
+      _ <- processAlg.exec(Nel.of("git", "commit", "-m", "Initial commit"), repoDir)
+
+      _ <- branches.traverse(branch =>
+        processAlg.exec(Nel.of("git", "branch", branch.name), repoDir)
+      )
+    } yield ()
+
   def createGitRepoWithConflict[F[_]](repoDir: File)(implicit
       fileAlg: FileAlg[F],
       processAlg: ProcessAlg[F],

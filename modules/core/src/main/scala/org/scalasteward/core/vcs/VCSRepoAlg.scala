@@ -31,6 +31,8 @@ trait VCSRepoAlg[F[_]] {
   def defaultBranch(repoOut: RepoOut): F[Branch]
 
   def syncFork(repo: Repo, repoOut: RepoOut): F[Unit]
+
+  def listUpdateBranches(repo: Repo): F[List[Branch]]
 }
 
 object VCSRepoAlg {
@@ -56,5 +58,7 @@ object VCSRepoAlg {
 
       val withLogin: Uri => Uri =
         util.uri.withUserInfo.set(UserInfo(config.vcsLogin, None))
+
+      override def listUpdateBranches(repo: Repo): F[List[Branch]] = gitAlg.branches(repo)
     }
 }

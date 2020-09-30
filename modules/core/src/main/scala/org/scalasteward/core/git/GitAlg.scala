@@ -63,6 +63,8 @@ trait GitAlg[F[_]] {
 
   def syncFork(repo: Repo, upstreamUrl: Uri, defaultBranch: Branch): F[Unit]
 
+  def branches(repo: Repo): F[List[Branch]]
+
   final def commitAllIfDirty(repo: Repo, message: String)(implicit F: Monad[F]): F[Option[Commit]] =
     containsChanges(repo).ifM(commitAll(repo, message).map(Some.apply), F.pure(None))
 
@@ -196,6 +198,15 @@ object GitAlg {
           _ <- exec(Nel.of("merge", remoteBranch), repoDir)
           _ <- push(repo, defaultBranch)
         } yield ()
+
+      override def branches(repo: Repo): F[List[Branch]] =
+        for {
+          repoDir <- workspaceAlg.repoDir(repo)
+          result <- exec(Nel.of("branch", "--format=%(refname:short)"), repoDir)
+        } yield result
+          .map(_.trim)
+          .filter(_.nonEmpty)
+          .map(s => Branch(s))
 
       def exec(command: Nel[String], cwd: File): F[List[String]] =
         processAlg.exec(gitCmd :: command, cwd, "GIT_ASKPASS" -> config.gitAskPass.pathAsString)
