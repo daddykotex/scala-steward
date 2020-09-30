@@ -96,6 +96,25 @@ final class NurtureAlg[F[_]](implicit
       )
     } yield ()
 
+  def closeOlderPullRequests(data: UpdateData): F[Unit] = {
+    def isCurrentBranch(branch: Branch): Boolean =
+      branch === data.updateBranch
+    def isRelevantToCurrentArtifact(branch: Branch): Boolean =
+      branch.name.startsWith(git.branchPrefix(data.update))
+
+    def closePullRequestsForBranch(branch: Branch): F[Unit] = ???
+
+    for {
+      _ <- logger.info(s"Closing PRs for ${data.update.mainArtifactId}")
+      updateBranches <- vcsRepoAlg.listUpdateBranches(data.repo)
+      relevantBranches = updateBranches.filter(branch =>
+        !isCurrentBranch(branch) && isRelevantToCurrentArtifact(branch)
+      )
+
+      _ <- relevantBranches.traverse(branch => closePullRequestsForBranch(branch))
+    } yield ()
+  }
+
   def processUpdate(data: UpdateData): F[ProcessResult] =
     for {
       _ <- logger.info(s"Process update ${data.update.show}")
