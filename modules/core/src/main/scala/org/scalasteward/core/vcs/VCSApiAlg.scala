@@ -28,6 +28,8 @@ trait VCSApiAlg[F[_]] {
 
   def createPullRequest(repo: Repo, data: NewPullRequestData): F[PullRequestOut]
 
+  def closePullRequest(repo: Repo, pr: PullRequestOut): F[Unit]
+
   def getBranch(repo: Repo, branch: Branch): F[BranchOut]
 
   def getRepo(repo: Repo): F[RepoOut]

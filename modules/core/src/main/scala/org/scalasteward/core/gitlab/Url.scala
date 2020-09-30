@@ -35,6 +35,9 @@ class Url(apiHost: Uri) {
   def mergeRequest(repo: Repo): Uri =
     repos(repo) / "merge_requests"
 
+  def oneMergeRequest(repo: Repo, id: Int): Uri =
+    repos(repo) / "merge_requests" / id.toString
+
   def existingMergeRequest(repo: Repo, internalId: Int): Uri =
     mergeRequest(repo) / internalId.toString()
 

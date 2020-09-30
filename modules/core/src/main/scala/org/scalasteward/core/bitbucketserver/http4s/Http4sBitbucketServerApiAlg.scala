@@ -98,6 +98,7 @@ class Http4sBitbucketServerApiAlg[F[_]](
 
   def ni(name: String): Nothing = throw new NotImplementedError(name)
 
+  override def closePullRequest(repo: Repo, pr: PullRequestOut): F[Unit] = ???
 }
 
 final class StashUrls(base: Uri) {

@@ -107,6 +107,9 @@ private[http4s] object GitlabJsonCodec {
 
   implicit val projectIdDecoder: Decoder[ProjectId] = deriveDecoder
   implicit val mergeRequestPayloadEncoder: Encoder[MergeRequestPayload] = deriveEncoder
+  implicit val mergeRequestUpdateEncoder: Encoder[MergeRequestUpdatePayload] =
+    deriveEncoder[MergeRequestUpdatePayload]
+
   implicit val pullRequestOutDecoder: Decoder[PullRequestOut] =
     mergeRequestOutDecoder.map(_.pullRequestOut)
   implicit val commitOutDecoder: Decoder[CommitOut] = deriveDecoder[CommitId].map(_.commitOut)
@@ -195,6 +198,13 @@ class Http4sGitLabApiAlg[F[_]](
 
     updatedMergeRequest.map(_.pullRequestOut)
   }
+
+  def closePullRequest(repo: Repo, pr: PullRequestOut): F[Unit] =
+    client.putWithBody[Unit, MergeRequestUpdatePayload](
+      url.oneMergeRequest(repo, 1), //TODO have an ID in PullRequestOut
+      MergeRequestUpdatePayload.Close,
+      modify(repo)
+    )
 
   def getBranch(repo: Repo, branch: Branch): F[BranchOut] =
     client.get(url.getBranch(repo, branch), modify(repo))
